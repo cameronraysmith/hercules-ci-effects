@@ -104,7 +104,7 @@ if "check_only" in environ:
     eprint("check_only is present, creating $out")
     open(environ["out"], "w")
 else:
-    if environ["skipIfExists"] == "1":
+    if environ.get("skipIfExists", "0") == "1":
         existingRelease = subprocess.run(
             [
                 "gh", "release", "view",

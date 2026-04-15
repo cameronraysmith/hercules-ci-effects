@@ -130,6 +130,32 @@ rec {
     )
   );
 
+  # Like example1, but with skipIfExists enabled
+  example3 = callFlakeOutputs (
+    inputs:
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { ... }:
+      {
+        imports = [
+          ../../flake-module.nix
+        ];
+        systems = [ "x86_64-linux" ];
+        defaultEffectSystem = effectSystem;
+        herculesCI.ciSystems = [ "x86_64-linux" ];
+
+        hercules-ci.github-releases = {
+          skipIfExists = true;
+          files = [
+            {
+              label = "test label";
+              path = builtins.toFile "test-file-name" "test-file-contents";
+            }
+          ];
+        };
+      }
+    )
+  );
+
   expectedFiles = [
     {
       label = "test label";
@@ -153,6 +179,9 @@ rec {
   example1Tag = example1.herculesCI (fakeHerculesCI fakeRepoTag);
 
   example2Branch = example2.herculesCI (fakeHerculesCI fakeRepoBranch);
+
+  example3Tag = example3.herculesCI (fakeHerculesCI fakeRepoTag);
+
   expectedFiles2 =
     let
       inherit (inputs.nixpkgs) lib;
@@ -175,8 +204,14 @@ rec {
     assert example1Branch.onPush.default.outputs.effects.github-releases == { };
     assert example1Tag.onPush.default.outputs.effects.github-releases.isEffect;
     assert example1Tag.onPush.default.outputs.effects.github-releases.files == expectedFiles;
+    # skipIfExists defaults to false
+    assert example1Tag.onPush.default.outputs.effects.github-releases.skipIfExists == false;
 
     assert example2Branch.onPush.default.outputs.checks.release-artifacts.files == expectedFiles2;
+
+    # skipIfExists = true propagates to the effect
+    assert example3Tag.onPush.default.outputs.effects.github-releases.isEffect;
+    assert example3Tag.onPush.default.outputs.effects.github-releases.skipIfExists == true;
 
     # Return the checks, so that we can build them in CI
     {
