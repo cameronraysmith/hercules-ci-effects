@@ -89,6 +89,13 @@ in
         default = herculesCI: herculesCI.config.repo.tag;
         defaultText = lib.literalExpression "herculesCI: herculesCI.config.repo.tag";
       };
+      skipIfExists = mkOption {
+        type = types.bool;
+        description = ''
+          Whether to skip creating the release if it already exists, rather than failing with an error.
+        '';
+        default = false;
+      };
       files = mkOption {
         type = types.listOf fileSpec;
         description = ''
@@ -209,6 +216,7 @@ in
                 inherit (config.repo) owner;
                 repo = config.repo.name;
                 releaseTag = cfg.releaseTag herculesCI;
+                inherit (cfg) skipIfExists;
               };
               inputs = [ pkgs.zip ];
               extraAttributes.files = files;

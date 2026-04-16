@@ -104,6 +104,17 @@ if "check_only" in environ:
     eprint("check_only is present, creating $out")
     open(environ["out"], "w")
 else:
+    if environ.get("skipIfExists", "0") == "1":
+        existingRelease = subprocess.run(
+            [
+                "gh", "release", "view",
+                "--repo", f"{environ["owner"]}/{environ["repo"]}",
+                "--json=url", environ["releaseTag"]
+            ]
+        )
+        if existingRelease.returncode == 0:
+            eprint(f"Release {environ["releaseTag"]} already exists, skipping")
+            exit(0)
     for spec in specs:
         if type(spec) is File:
             symlink(spec.path, spec.label)
