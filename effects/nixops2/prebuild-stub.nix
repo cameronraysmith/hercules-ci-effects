@@ -9,6 +9,7 @@
       config = {
         boot.loader.grub.enable = lib.mkForce false;
         fileSystems."/".device = lib.mkDefault "/no-root-fs-for-prebuild";
+        fileSystems."/".fsType = lib.mkDefault "ext4";
       };
       options = {
         # TODO: import nixos contrib. It's in the closure of the plugins, but
