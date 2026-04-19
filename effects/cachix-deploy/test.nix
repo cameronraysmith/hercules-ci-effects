@@ -12,6 +12,7 @@ lib.recurseIntoAttrs {
       deploy.agent.a =
         (nixos {
           fileSystems."/".device = "x";
+          fileSystems."/".fsType = "ext4";
           boot.loader.grub.enable = false;
         }).config.system.build.toplevel;
     }

@@ -10,6 +10,7 @@ lib.recurseIntoAttrs {
       (nixos {
         boot.loader.grub.enable = false;
         fileSystems."/".device = "nope";
+        fileSystems."/".fsType = "ext4";
       })
       config
       ;
